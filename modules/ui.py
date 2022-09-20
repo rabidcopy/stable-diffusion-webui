@@ -125,9 +125,6 @@ def save_files(js_data, images, index):
 
 def wrap_gradio_call(func):
     def f(*args, **kwargs):
-        run_memmon = opts.memmon_poll_rate > 0 and not shared.mem_mon.disabled
-        if run_memmon:
-            shared.mem_mon.monitor()
         t = time.perf_counter()
 
         try:
@@ -144,20 +141,8 @@ def wrap_gradio_call(func):
 
         elapsed = time.perf_counter() - t
 
-        if run_memmon:
-            mem_stats = {k: -(v//-(1024*1024)) for k, v in shared.mem_mon.stop().items()}
-            active_peak = mem_stats['active_peak']
-            reserved_peak = mem_stats['reserved_peak']
-            sys_peak = mem_stats['system_peak']
-            sys_total = mem_stats['total']
-            sys_pct = round(sys_peak/max(sys_total, 1) * 100, 2)
-
-            vram_html = f"<p class='vram'>Torch active/reserved: {active_peak}/{reserved_peak} MiB, <wbr>Sys VRAM: {sys_peak}/{sys_total} MiB ({sys_pct}%)</p>"
-        else:
-            vram_html = ''
-
         # last item is always HTML
-        res[-1] += f"<div class='performance'><p class='time'>Time taken: <wbr>{elapsed:.2f}s</p>{vram_html}</div>"
+         res[-1] = res[-1] + f"<p class='performance'>Time taken: {elapsed:.2f}s</p>"
 
         shared.state.interrupted = False
 
