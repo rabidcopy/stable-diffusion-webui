@@ -142,7 +142,7 @@ def wrap_gradio_call(func):
         elapsed = time.perf_counter() - t
 
         # last item is always HTML
-         res[-1] = res[-1] + f"<p class='performance'>Time taken: {elapsed:.2f}s</p>"
+        res[-1] = res[-1] + f"<p class='performance'>Time taken: {elapsed:.2f}s</p>"
 
         shared.state.interrupted = False
 
