@@ -150,6 +150,20 @@ def load_model():
         lowvram.setup_for_low_vram(sd_model, shared.cmd_opts.medvram)
     else:
         sd_model.to(shared.device)
+    
+    ckpt=torch.load('yourcustomvae.pt', map_location="cpu")
+    loss = []
+    for i in ckpt["state_dict"].keys():
+        if i[0:4] == "loss":
+            loss.append(i)
+    for i in loss:
+        del ckpt["state_dict"][i]
+
+    sd_model.first_stage_model = sd_model.first_stage_model.float()
+    sd_model.first_stage_model.load_state_dict(ckpt["state_dict"])
+    sd_model.first_stage_model = sd_model.first_stage_model.float()
+    del ckpt
+    del loss 
 
     sd_hijack.model_hijack.hijack(sd_model)
 
